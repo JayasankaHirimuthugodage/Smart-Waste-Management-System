@@ -1,8 +1,8 @@
 package com.csse.smartwaste.bin.dto;
 
-import com.csse.smartwaste.bin.entity.Bin;
 import java.time.LocalDateTime;
-import java.util.List;
+
+import com.csse.smartwaste.bin.entity.Bin;
 
 /**
  * Bin Response DTO - Data Transfer Object for bin response data

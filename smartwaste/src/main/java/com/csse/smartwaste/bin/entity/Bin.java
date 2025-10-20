@@ -1,10 +1,11 @@
 package com.csse.smartwaste.bin.entity;
 
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.time.LocalDateTime;
 
 /**
  * Bin Entity - Represents a waste collection bin
