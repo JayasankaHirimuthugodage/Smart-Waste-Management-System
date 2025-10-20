@@ -23,4 +23,3 @@ const ActionButton = ({ label, icon, onClick, colorScheme = 'emerald' }) => {
 };
 
 export default ActionButton;
-

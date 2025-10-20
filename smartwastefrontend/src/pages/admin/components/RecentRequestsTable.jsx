@@ -8,7 +8,7 @@ const RecentRequestsTable = ({ navigate }) => {
 
   const API_BASE = "http://localhost:8080/api/admin/bins";
 
-  // ✅ Status color mapping
+  //  Status color mapping
   const getStatusStyle = (status) => {
     const map = {
       Pending: { bg: "#fef3c7", color: "#d97706" },
@@ -18,7 +18,7 @@ const RecentRequestsTable = ({ navigate }) => {
     return map[status] || map.Pending;
   };
 
-  // ✅ Fetch latest bin requests
+  //  Fetch latest bin requests
   const fetchRecentRequests = async () => {
     try {
       setLoading(true);
@@ -35,7 +35,7 @@ const RecentRequestsTable = ({ navigate }) => {
     }
   };
 
-  // ✅ Approve / Decline instantly
+  //  Approve / Decline instantly
   const updateStatus = async (id, newStatus) => {
     try {
       // Optimistic UI update
