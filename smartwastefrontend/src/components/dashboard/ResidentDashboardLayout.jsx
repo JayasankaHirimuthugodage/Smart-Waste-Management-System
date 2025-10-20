@@ -1,20 +1,30 @@
-import { useState } from 'react';
-import { Menu, X, Calendar, Trash2, CreditCard, Award, MessageCircle, Bell, LogOut } from 'lucide-react';
+import { useState } from "react";
+import {
+  Menu,
+  X,
+  Calendar,
+  Trash2,
+  CreditCard,
+  Award,
+  MessageCircle,
+  Bell,
+  LogOut,
+} from "lucide-react";
 
 /**
  * Complete Dashboard Layout with Sidebar and Top Navigation - Resident Version
  */
 const DashboardLayout = ({
   navItems = [],
-  activeNav = '',
+  activeNav = "",
   onNavClick = () => {},
-  logo = 'App',
+  logo = "App",
   logoIcon = null,
-  user = { name: 'Resident User', avatar: null },
+  user = { name: "Resident User", avatar: null },
   onLogout = () => {},
-  pageTitle = '',
-  pageSubtitle = '',
-  children
+  pageTitle = "",
+  pageSubtitle = "",
+  children,
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -23,7 +33,7 @@ const DashboardLayout = ({
       {/* Sidebar */}
       <aside
         className={`${
-          isSidebarOpen ? 'w-64' : 'w-20'
+          isSidebarOpen ? "w-64" : "w-20"
         } bg-white border-r border-gray-200 transition-all duration-300 flex flex-col shadow-lg`}
       >
         {/* Sidebar Header */}
@@ -32,12 +42,20 @@ const DashboardLayout = ({
             {isSidebarOpen && (
               <div className="flex items-center space-x-3">
                 {logoIcon ? (
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#4CBB17' }}>
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: "#4CBB17" }}
+                  >
                     {logoIcon}
                   </div>
                 ) : (
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#4CBB17' }}>
-                    <span className="text-white font-bold text-lg">{logo.charAt(0)}</span>
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: "#4CBB17" }}
+                  >
+                    <span className="text-white font-bold text-lg">
+                      {logo.charAt(0)}
+                    </span>
                   </div>
                 )}
                 <span className="text-xl font-bold text-gray-900">{logo}</span>
@@ -68,14 +86,32 @@ const DashboardLayout = ({
                 onClick={() => onNavClick(item.id)}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                   isActive
-                    ? 'border-l-4'
-                    : 'text-gray-600 hover:bg-gray-50 border-l-4 border-transparent'
+                    ? "border-l-4"
+                    : "text-gray-600 hover:bg-gray-50 border-l-4 border-transparent"
                 }`}
-                style={isActive ? { backgroundColor: '#4CBB1720', color: '#4CBB17', borderLeftColor: '#4CBB17' } : {}}
+                style={
+                  isActive
+                    ? {
+                        backgroundColor: "#4CBB1720",
+                        color: "#4CBB17",
+                        borderLeftColor: "#4CBB17",
+                      }
+                    : {}
+                }
               >
-                {Icon && <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? '' : 'text-gray-500'}`} style={isActive ? { color: '#4CBB17' } : {}} />}
+                {Icon && (
+                  <Icon
+                    className={`w-5 h-5 flex-shrink-0 ${
+                      isActive ? "" : "text-gray-500"
+                    }`}
+                    style={isActive ? { color: "#4CBB17" } : {}}
+                  />
+                )}
                 {isSidebarOpen && (
-                  <span className={`font-medium ${isActive ? '' : 'text-gray-700'}`} style={isActive ? { color: '#4CBB17' } : {}}>
+                  <span
+                    className={`font-medium ${isActive ? "" : "text-gray-700"}`}
+                    style={isActive ? { color: "#4CBB17" } : {}}
+                  >
                     {item.label}
                   </span>
                 )}
@@ -94,8 +130,12 @@ const DashboardLayout = ({
             <div>
               {pageTitle && (
                 <>
-                  <h1 className="text-2xl font-bold text-gray-900">{pageTitle}</h1>
-                  {pageSubtitle && <p className="text-sm text-gray-600 mt-1">{pageSubtitle}</p>}
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {pageTitle}
+                  </h1>
+                  {pageSubtitle && (
+                    <p className="text-sm text-gray-600 mt-1">{pageSubtitle}</p>
+                  )}
                 </>
               )}
             </div>
@@ -111,24 +151,37 @@ const DashboardLayout = ({
               {/* User Profile */}
               <div className="flex items-center space-x-3 px-3 py-2 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer">
                 {user?.avatar ? (
-                  <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full" />
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-10 h-10 rounded-full"
+                  />
                 ) : (
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: '#4CBB17' }}>
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "#4CBB17" }}
+                  >
                     <span className="text-white font-semibold text-sm">
-                      {user?.name?.charAt(0)?.toUpperCase() || 'R'}
+                      {user?.name?.charAt(0)?.toUpperCase() || "R"}
                     </span>
                   </div>
                 )}
-                <span className="text-sm font-medium text-gray-700">{user?.name || 'Resident'}</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {user?.name || "Resident"}
+                </span>
               </div>
 
               {/* Logout Button */}
               <button
                 onClick={onLogout}
                 className="px-4 py-2 text-white rounded-lg transition-colors text-sm font-medium flex items-center space-x-2"
-                style={{ backgroundColor: '#4CBB17' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3da612'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4CBB17'}
+                style={{ backgroundColor: "#4CBB17" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#3da612")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#4CBB17")
+                }
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -139,9 +192,7 @@ const DashboardLayout = ({
 
         {/* Content Area */}
         <main className="flex-1 overflow-y-auto bg-gray-50">
-          <div className="p-8">
-            {children}
-          </div>
+          <div className="p-8">{children}</div>
         </main>
       </div>
     </div>
