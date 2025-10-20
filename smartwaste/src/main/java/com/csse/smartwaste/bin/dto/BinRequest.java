@@ -1,8 +1,6 @@
 package com.csse.smartwaste.bin.dto;
 
 import com.csse.smartwaste.bin.entity.Bin;
-import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * Bin Request DTO - Data Transfer Object for bin creation/update requests
@@ -86,4 +84,3 @@ public class BinRequest {
     }
 
 }
-
