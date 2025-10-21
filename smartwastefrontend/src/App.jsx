@@ -25,6 +25,7 @@ import RecyclingTrends from "./pages/admin/RecyclingTrends";
 import FinancialSummary from "./pages/admin/FinancialSummary";
 import EnvironmentalImpact from "./pages/admin/EnvironmentalImpact";
 import SpecialPickupManagement from "./pages/admin/SpecialPickupManagement";
+import RouteChangesPreview from "./pages/admin/RouteChangesPreview.jsx";
 import { ROLES } from "./constants/roles";
 
 /**
@@ -154,6 +155,16 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
                   <SpecialPickupManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin - Route Changes Management */}
+            <Route
+              path="/admin/routes"
+              element={
+                <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+                  <RouteChangesPreview />
                 </ProtectedRoute>
               }
             />
