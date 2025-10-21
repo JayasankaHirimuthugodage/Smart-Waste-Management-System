@@ -5,21 +5,21 @@ import java.time.LocalDateTime;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * Bin Entity - Represents a waste collection bin
- * 
- * SOLID PRINCIPLES APPLIED:
- * - SRP (Single Responsibility): This class has only one reason to change - bin data structure changes
- * - OCP (Open/Closed): Open for extension (new fields) but closed for modification of core structure
- * - DRY (Don't Repeat Yourself): Reusable bin model across the application
- * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on bin representation
- * - No magic numbers: All constants are properly defined
- * - Clear naming: Descriptive field names
- * - Proper encapsulation: Private fields with public getters/setters
+ *
+ * SOLID PRINCIPLES APPLIED: - SRP (Single Responsibility): This class has only
+ * one reason to change - bin data structure changes - OCP (Open/Closed): Open
+ * for extension (new fields) but closed for modification of core structure -
+ * DRY (Don't Repeat Yourself): Reusable bin model across the application
+ *
+ * CODE SMELLS AVOIDED: - No God class: Focused only on bin representation - No
+ * magic numbers: All constants are properly defined - Clear naming: Descriptive
+ * field names - Proper encapsulation: Private fields with public
+ * getters/setters
  */
 @Document(collection = "bins")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -57,87 +57,162 @@ public class Bin {
     }
 
     // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getBinId() { return binId; }
-    public void setBinId(String binId) { this.binId = binId; }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getOwnerId() { return ownerId; }
-    public void setOwnerId(String ownerId) { this.ownerId = ownerId; }
+    public String getBinId() {
+        return binId;
+    }
 
-    public BinStatus getStatus() { return status; }
-    public void setStatus(BinStatus status) { 
-        this.status = status; 
+    public void setBinId(String binId) {
+        this.binId = binId;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public BinStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BinStatus status) {
+        this.status = status;
         this.updatedAt = LocalDateTime.now();
     }
 
-    public BinTag getTag() { return tag; }
-    public void setTag(BinTag tag) { this.tag = tag; }
+    public BinTag getTag() {
+        return tag;
+    }
 
-    public Double getLatitude() { return latitude; }
-    public void setLatitude(Double latitude) { this.latitude = latitude; }
+    public void setTag(BinTag tag) {
+        this.tag = tag;
+    }
 
-    public Double getLongitude() { return longitude; }
-    public void setLongitude(Double longitude) { this.longitude = longitude; }
+    public Double getLatitude() {
+        return latitude;
+    }
 
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Double getLongitude() {
+        return longitude;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
-    /**
-     * Bin Status Enum
-     * SRP: Single responsibility - only manages bin status values
-     * OCP: Open for extension - new statuses can be added without modifying existing code
-     * 
-     * Status Definitions:
-     * - ACTIVE: Bin is ready for collection
-     * - COLLECTED: Bin has been collected today
-     * - DAMAGED: Bin needs repair
-     * - LOST: Bin is missing
-     * - MAINTENANCE: Bin is under maintenance
-     */
-    public enum BinStatus {
-        ACTIVE, COLLECTED, DAMAGED, LOST, MAINTENANCE
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     /**
-     * Bin Tag Inner Class
-     * SRP: Single responsibility - only represents tag information
-     * Encapsulation: Groups related tag data together
+     * Bin Status Enum SRP: Single responsibility - only manages bin status
+     * values OCP: Open for extension - new statuses can be added without
+     * modifying existing code
+     *
+     * Status Definitions: - ACTIVE: Bin is ready for collection - COLLECTED:
+     * Bin has been collected today - DAMAGED: Bin needs repair - LOST: Bin is
+     * missing - MAINTENANCE: Bin is under maintenance - PENDING: Bin is
+     * awaiting approval or not yet assigned for collection
+     */
+    public enum BinStatus {
+        ACTIVE,
+        COLLECTED,
+        DAMAGED,
+        LOST,
+        MAINTENANCE,
+        PENDING;
+
+        /**
+         * Case-insensitive enum parser to safely map DB/string values. Allows
+         * values like "Pending", "pending", or "PENDING" without error.
+         */
+        @JsonCreator
+        public static BinStatus fromValue(String value) {
+            for (BinStatus status : BinStatus.values()) {
+                if (status.name().equalsIgnoreCase(value)) {
+                    return status;
+                }
+            }
+            throw new IllegalArgumentException("Unknown enum value: " + value);
+        }
+    }
+
+    /**
+     * Bin Tag Inner Class SRP: Single responsibility - only represents tag
+     * information Encapsulation: Groups related tag data together
      */
     public static class BinTag {
+
         private String type;
         private String value;
 
-        public BinTag() {}
+        public BinTag() {
+        }
 
         public BinTag(String type, String value) {
             this.type = type;
             this.value = value;
         }
 
-        public String getType() { return type; }
-        public void setType(String type) { this.type = type; }
+        public String getType() {
+            return type;
+        }
 
-        public String getValue() { return value; }
-        public void setValue(String value) { this.value = value; }
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
     }
-
 
     @Override
     public String toString() {
-        return "Bin{" +
-                "id='" + id + '\'' +
-                ", binId='" + binId + '\'' +
-                ", ownerId='" + ownerId + '\'' +
-                ", status=" + status +
-                ", address='" + address + '\'' +
-                '}';
+        return "Bin{"
+                + "id='" + id + '\''
+                + ", binId='" + binId + '\''
+                + ", ownerId='" + ownerId + '\''
+                + ", status=" + status
+                + ", address='" + address + '\''
+                + '}';
     }
 }
