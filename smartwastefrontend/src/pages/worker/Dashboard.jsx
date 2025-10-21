@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import DashboardLayout from '../../components/dashboard/WorkerDashboardLayout';
 import DashboardCard from '../../components/dashboard/DashboardCard';
-import ActionButton from '../../components/dashboard/ActionButton';
 import ActivityItem from '../../components/dashboard/ActivityItem';
 import CollectionPage from './CollectionPage';
 import PickupRoutesPage from './PickupRoutesPage';
@@ -10,11 +9,9 @@ import api from '../../services/api';
 
 // Icon components using emojis
 const Truck = () => <span className="text-lg">🚛</span>;
-const Trash2 = () => <span className="text-lg">🗑️</span>;
 const Package = () => <span className="text-lg">📦</span>;
 const Clock = () => <span className="text-lg">🕐</span>;
 const CheckSquare = () => <span className="text-lg">✅</span>;
-const MapPin = () => <span className="text-lg">📍</span>;
 const Scan = () => <span className="text-lg">📱</span>;
 
 /**
