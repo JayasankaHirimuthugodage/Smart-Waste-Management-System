@@ -34,6 +34,7 @@ const AdminDashboard = () => {
     else if (navId === "pickups") navigate("/admin/pickups");
     else if (navId === "analytics") navigate("/admin/analytics");
     else if (navId === "reports") navigate("/admin/dashboard");
+    else if (navId === "routes") navigate("/admin/routes");
   };
 
   const navItems = [

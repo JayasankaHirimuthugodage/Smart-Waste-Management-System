@@ -43,7 +43,7 @@ const BinRequestsManagement = () => {
     return styles[status] || styles.Pending;
   };
 
-  // ✅ Fetch all bin requests from backend
+  //  Fetch all bin requests from backend
   const fetchBins = async () => {
     try {
       setLoading(true);
@@ -56,7 +56,7 @@ const BinRequestsManagement = () => {
     }
   };
 
-  // ✅ Optimistic update for bin status
+  //  Optimistic update for bin status
   const updateStatus = async (id, newStatus) => {
     try {
       // Update UI immediately
@@ -76,7 +76,7 @@ const BinRequestsManagement = () => {
     }
   };
 
-  // ✅ Delete bin request
+  //  Delete bin request
   const deleteBin = async (id) => {
     try {
       await axios.delete(`${API_BASE}/${id}`);
@@ -86,7 +86,7 @@ const BinRequestsManagement = () => {
     }
   };
 
-  // ✅ Load data on mount
+  //  Load data on mount
   useEffect(() => {
     fetchBins();
   }, []);
@@ -112,6 +112,7 @@ const BinRequestsManagement = () => {
     else if (navId === "bins") navigate("/admin/bins");
     else if (navId === "pickups") navigate("/admin/pickups");
     else if (navId === "analytics") navigate("/admin/analytics");
+    else if (navId === "routes") navigate("/admin/routes");
   };
 
   const handleLogout = () => logout();
