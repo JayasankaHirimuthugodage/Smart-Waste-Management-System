@@ -24,12 +24,25 @@ const ClockIcon = ({ className }) => (
   </svg>
 );
 
-const CollectionProgress = ({ routeProgress, totalWeight, elapsedTime }) => {
+const CollectionProgress = ({ routeProgress, totalWeight, elapsedTime, selectedRoute }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">
-        Collection Progress
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Collection Progress
+        </h2>
+        {selectedRoute && (
+          <div className="flex items-center space-x-2">
+            <MapPinIcon className="w-4 h-4 text-green-600" />
+            <span className="text-sm font-medium text-gray-700">
+              {selectedRoute.name}
+            </span>
+            <span className="text-xs text-gray-500">
+              ({selectedRoute.bins?.length || 0} bins)
+            </span>
+          </div>
+        )}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <ProgressIndicator
           label="Route Progress"

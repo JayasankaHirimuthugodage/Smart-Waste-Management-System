@@ -71,10 +71,42 @@ const CollectionPage = () => {
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
   const [binToReset, setBinToReset] = useState(null);
 
-  // Route progress calculation
+  // Get selected route from localStorage
+  const selectedRouteId = localStorage.getItem("selectedRouteId");
+  
+  // Get route-specific bins
+  const getRouteSpecificBins = () => {
+    if (!selectedRouteId) return collectionData.availableBins;
+    
+    const route = RouteConfigService.getRouteById(selectedRouteId);
+    if (!route || !route.bins) return collectionData.availableBins;
+    
+    // Filter bins that belong to the selected route
+    return collectionData.availableBins.filter(bin => 
+      route.bins.includes(bin.binId)
+    );
+  };
+
+  const routeSpecificBins = getRouteSpecificBins();
+  
+  // Filter collected bins to only include those from the selected route
+  const getRouteSpecificCollectedBins = () => {
+    if (!selectedRouteId) return collectionState.collectedBins;
+    
+    const route = RouteConfigService.getRouteById(selectedRouteId);
+    if (!route || !route.bins) return collectionState.collectedBins;
+    
+    return collectionState.collectedBins.filter(bin => 
+      route.bins.includes(bin.binId)
+    );
+  };
+
+  const routeSpecificCollectedBins = getRouteSpecificCollectedBins();
+
+  // Route progress calculation - now based on selected route only
   const routeProgress = {
-    collected: collectionState.collectedBins.length,
-    total: collectionData.availableBins.length,
+    collected: routeSpecificCollectedBins.length,
+    total: routeSpecificBins.length,
   };
 
   // Load initial data
@@ -88,10 +120,11 @@ const CollectionPage = () => {
     loadInitialData();
   }, []);
 
-  // Update route progress when collected bins change
+  // Update route progress when collected bins change or route changes
   useEffect(() => {
     // This is handled by the routeProgress calculation above
-  }, [collectionState.collectedBins, collectionData.availableBins]);
+    // The calculation now automatically updates when selectedRouteId, collectedBins, or availableBins change
+  }, [selectedRouteId, collectionState.collectedBins, collectionData.availableBins]);
 
   // Audio feedback system
   const playFeedbackSound = useCallback((type) => {
@@ -134,9 +167,38 @@ const CollectionPage = () => {
       return;
     }
 
+    // Check if bin belongs to selected route
+    if (selectedRouteId) {
+      const route = RouteConfigService.getRouteById(selectedRouteId);
+      if (route && route.bins && !route.bins.includes(bin.binId)) {
+        collectionState.setFeedback({
+          type: "error",
+          message: `This bin is not part of the selected route: ${route.name}`,
+          options: [
+            {
+              text: "Retry Scan",
+              type: "secondary",
+              onClick: () => collectionState.setBinId(""),
+            },
+            {
+              text: "Change Route",
+              type: "primary",
+              onClick: () => {
+                // Navigate to routes page or show route selector
+                window.location.href = "/worker/routes";
+              },
+            },
+            { text: "Skip", type: "secondary", onClick: () => collectionState.setBinId("") },
+          ],
+        });
+        playFeedbackSound("error");
+        return;
+      }
+    }
+
     // Proceed with collection
     await proceedWithCollection(bin);
-  }, [collectionState, collectionData.availableBins, playFeedbackSound]);
+  }, [collectionState, collectionData.availableBins, playFeedbackSound, selectedRouteId]);
 
   // Proceed with collection after validation
   const proceedWithCollection = useCallback(async (bin) => {
@@ -584,6 +646,7 @@ const CollectionPage = () => {
               routeProgress={routeProgress}
               totalWeight={collectionState.totalWeight}
               elapsedTime={sessionManagement.elapsedTime}
+              selectedRoute={selectedRouteId ? RouteConfigService.getRouteById(selectedRouteId) : null}
             />
 
             {/* Bin Scanning Section */}
@@ -674,7 +737,7 @@ const CollectionPage = () => {
 
             {/* Available Bins Status Display */}
             <AvailableBinsSection
-              availableBins={collectionData.availableBins}
+              availableBins={routeSpecificBins}
               onResetBin={handleResetBin}
             />
           </div>
