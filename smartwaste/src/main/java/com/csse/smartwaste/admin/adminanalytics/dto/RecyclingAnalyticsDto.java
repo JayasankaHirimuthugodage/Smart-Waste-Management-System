@@ -3,8 +3,8 @@ package com.csse.smartwaste.admin.adminanalytics.dto;
 import java.util.List;
 
 /**
- * RecyclingAnalyticsDto SRP: Encapsulates all recycling analytics metrics. OCP:
- * Can be extended with new fields without modifying existing logic.
+ * SRP: Encapsulates all recycling analytics metrics. OCP: Can be extended with
+ * new fields without modifying existing logic.
  */
 public class RecyclingAnalyticsDto {
 

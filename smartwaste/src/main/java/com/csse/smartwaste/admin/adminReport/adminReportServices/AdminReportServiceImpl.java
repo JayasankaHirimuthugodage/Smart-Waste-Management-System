@@ -53,7 +53,7 @@ public class AdminReportServiceImpl implements AdminReportService {
         //  Compute recycling rate with fallback for empty data
         double recyclingRate = totalWaste > 0 ? (recycledWaste / totalWaste) * 100 : 0;
 
-        // 🧠 Add some realistic variation if there’s no recyclable data
+        // Add some realistic variation if there’s no recyclable data
         if (recyclingRate == 0) {
             recyclingRate = 20 + Math.random() * 60; // between 20% and 80%
         }
