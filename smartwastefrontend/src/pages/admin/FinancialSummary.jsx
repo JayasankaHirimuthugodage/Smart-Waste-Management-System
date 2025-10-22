@@ -34,7 +34,6 @@ const FinancialSummary = () => {
     { id: "pickups", label: "Special Pickups", icon: Package },
     { id: "routes", label: "Route Changes", icon: Truck },
     { id: "bins", label: "Bin Requests", icon: Trash2 },
-    { id: "approvals", label: "Approvals", icon: CheckSquare },
   ];
 
   const getStatusColor = (status) => {

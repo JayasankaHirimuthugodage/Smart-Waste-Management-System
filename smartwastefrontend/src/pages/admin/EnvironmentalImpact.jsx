@@ -7,7 +7,6 @@ import {
   Package,
   Truck,
   Trash2,
-  CheckSquare,
   Leaf,
   Wind,
   Droplets,
@@ -127,6 +126,14 @@ const EnvironmentalImpact = () => {
     else if (navId === "bins") navigate("/admin/bins");
   };
 
+  //  Function to handle PDF download
+  const handleDownloadReport = () => {
+    window.open(
+      "http://localhost:8080/api/admin/analytics/environmental/report",
+      "_blank"
+    );
+  };
+
   return (
     <DashboardLayout
       navItems={navItems}
@@ -138,6 +145,17 @@ const EnvironmentalImpact = () => {
       pageTitle="Environmental Impact"
       pageSubtitle="Analyze carbon footprint, waste reduction, and environmental KPIs"
     >
+      {/*  Report Download Button */}
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={handleDownloadReport}
+          className="px-5 py-2 text-white text-sm font-medium rounded-lg shadow"
+          style={{ backgroundColor: "#4CBB17" }}
+        >
+          Download Environmental Report (PDF)
+        </button>
+      </div>
+
       {/* Time Range Filter */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -150,10 +168,6 @@ const EnvironmentalImpact = () => {
               onChange={(e) => setTimeRange(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
               style={{ "--tw-ring-color": "#4CBB17" }}
-              onFocus={(e) =>
-                (e.target.style.boxShadow = "0 0 0 2px rgba(76, 187, 23, 0.5)")
-              }
-              onBlur={(e) => (e.target.style.boxShadow = "")}
             >
               <option value="week">This Week</option>
               <option value="month">This Month</option>
