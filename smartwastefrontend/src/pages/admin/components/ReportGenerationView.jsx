@@ -5,13 +5,15 @@ import {
   Recycle,
   MapPin,
   AlertCircle,
-  FileText,
-  Calendar,
 } from "lucide-react";
 import StatsGrid from "./StatsGrid";
 import RecentRequestsTable from "./RecentRequestsTable";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+// 🧭 Chart Imports
+import WasteTrendsChart from "../../../components/dashboard/WasteTrendsChart";
+import RecyclingRatesChart from "../../../components/dashboard/RecyclingRatesChart";
 
 const ReportGenerationView = () => {
   const navigate = useNavigate();
@@ -78,7 +80,7 @@ const ReportGenerationView = () => {
       try {
         await axios.delete(`http://localhost:8080/api/admin/reports/${id}`);
         alert("✅ Report deleted successfully!");
-        loadReports(); // Refresh the table
+        loadReports();
       } catch (error) {
         console.error("Error deleting report:", error);
         alert("❌ Failed to delete report. Check backend connection.");
@@ -209,7 +211,16 @@ const ReportGenerationView = () => {
         </button>
       </div>
 
+      {/* Statistics Grid */}
       <StatsGrid statistics={statistics} />
+
+      {/* 📊 Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <WasteTrendsChart />
+        <RecyclingRatesChart />
+      </div>
+
+      {/* Recent Requests */}
       <RecentRequestsTable navigate={navigate} />
 
       {/* Generated Reports Table */}

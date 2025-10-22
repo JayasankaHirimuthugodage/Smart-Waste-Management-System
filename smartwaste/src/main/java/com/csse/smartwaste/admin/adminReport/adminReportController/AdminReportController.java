@@ -68,7 +68,7 @@ public class AdminReportController {
     }
 
     /**
-     * ✅ NEW: Delete a report by ID.
+     * NEW: Delete a report by ID.
      *
      * SRP: Only handles HTTP request/response mapping. OCP: Added as a new
      * endpoint without modifying existing ones.
