@@ -163,6 +163,38 @@ public class CollectionController {
     }
 
     /**
+     * Delete collection record by bin ID and worker ID
+     * SRP: Single responsibility - only handles collection record deletion HTTP request
+     * 
+     * @param request the reset request containing binId and workerId
+     * @return ResponseEntity containing success message
+     */
+    @DeleteMapping("/reset")
+    public ResponseEntity<Map<String, String>> resetCollectionRecord(@RequestBody Map<String, String> request) {
+        try {
+            String binId = request.get("binId");
+            String workerId = request.get("workerId");
+            
+            if (binId == null || workerId == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "binId and workerId are required"));
+            }
+            
+            collectionService.deleteCollectionRecord(binId, workerId);
+            
+            Map<String, String> response = Map.of(
+                "message", "Collection record deleted successfully",
+                "binId", binId,
+                "workerId", workerId,
+                "timestamp", java.time.LocalDateTime.now().toString()
+            );
+            return ResponseEntity.ok(response);
+        } catch (ResourceNotFoundException e) {
+            throw e; // Let global exception handler handle it
+        }
+    }
+
+    /**
      * Health check endpoint
      * SRP: Single responsibility - only handles health check
      * 

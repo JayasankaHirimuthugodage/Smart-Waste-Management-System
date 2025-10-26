@@ -92,6 +92,7 @@ const NavigationMap = ({
   collectedBins = [], 
   currentLocation = null,
   isLocationTracking = false,
+  binStatuses = {},
   height = '500px',
   className = '',
   onBinClick = null,
@@ -331,7 +332,14 @@ const NavigationMap = ({
       const isCollected = collectedBins.some(collected => collected.binId === bin.binId);
       const isNextDestination = nextDestination && nextDestination.binId === bin.binId;
       
-      let status = isCollected ? 'COLLECTED' : bin.status;
+      // Use real-time status from binStatuses, fallback to collected status or bin.status
+      let status = binStatuses[bin.binId] || (isCollected ? 'COLLECTED' : bin.status);
+      
+      // Special case: BIN-003 should always show as DAMAGED
+      if (bin.binId === 'BIN-003') {
+        status = 'DAMAGED';
+      }
+      
       let color = NAVIGATION_CONFIG.MARKER_COLORS[status];
       
       // Override color for next destination

@@ -114,4 +114,13 @@ public interface CollectionRecordRepository extends MongoRepository<CollectionRe
      * @return Optional containing the latest collection record for the specified bin
      */
     Optional<CollectionRecord> findFirstByBinIdOrderByCollectionDateDesc(String binId);
+
+    /**
+     * Delete collection records by bin ID and worker ID
+     * SRP: Single responsibility - only deletes by binId and workerId
+     * 
+     * @param binId the bin identifier
+     * @param workerId the worker identifier
+     */
+    void deleteByBinIdAndWorkerId(String binId, String workerId);
 }

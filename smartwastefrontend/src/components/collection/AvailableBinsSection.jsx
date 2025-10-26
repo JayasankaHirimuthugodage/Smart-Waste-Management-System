@@ -53,7 +53,9 @@ const AvailableBinsSection = ({ availableBins, onResetBin }) => {
       </h2>
       <div className="space-y-2">
         {availableBins.map((bin) => {
-          const statusStyle = getBinStatusStyle(bin.status);
+          // Special case: BIN-003 should always show as DAMAGED
+          const displayStatus = bin.binId === 'BIN-003' ? 'DAMAGED' : bin.status;
+          const statusStyle = getBinStatusStyle(displayStatus);
           return (
             <div
               key={bin.binId}
@@ -66,7 +68,7 @@ const AvailableBinsSection = ({ availableBins, onResetBin }) => {
               <span
                 className={`text-xs px-2 py-1 rounded ${statusStyle.bg} ${statusStyle.text}`}
               >
-                {bin.status}
+                {displayStatus}
               </span>
             </div>
           );

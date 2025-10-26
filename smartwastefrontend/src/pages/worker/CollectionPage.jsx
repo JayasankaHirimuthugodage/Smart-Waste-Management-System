@@ -342,7 +342,7 @@ const CollectionPage = () => {
       
       collectionState.setFeedback({
         type: "success",
-        message: "✓ Collection Recorded (Saved Locally)",
+        message: "✓ Collection Recorded",
         options: [],
       });
 
@@ -379,34 +379,100 @@ const CollectionPage = () => {
   }, [collectionState]);
 
   // Manual entry handler
-  const handleManualEntry = useCallback(() => {
+  const handleManualEntry = useCallback(async () => {
     const bin = collectionData.availableBins.find(b => b.binId === collectionState.binId.toUpperCase());
-    const collection = {
+    
+    if (!bin) {
+      collectionState.setFeedback({
+        type: "error",
+        message: "Invalid Bin ID",
+        options: [],
+      });
+      return;
+    }
+
+    // Prepare collection data for backend
+    const collectionDataForBackend = {
       binId: collectionState.binId.toUpperCase(),
-      location: bin?.address || 'Unknown',
-      timestamp: new Date().toLocaleString(),
-      weight: collectionState.manualWeight,
-      fillLevel: "Manual Entry",
-      status: "Manual Entry - Sensor Failed",
-      reason: "Sensor failure",
+      workerId: "WORKER-001",
+      binLocation: bin.address,
+      binOwner: bin.ownerId,
+      weight: collectionState.manualWeight || 0,
+      fillLevel: 0,
+      wasteType: "General",
+      status: "OVERRIDE",
+      reason: "Manual entry - Sensor failure",
+      sensorData: {
+        temperature: 0,
+        batteryLevel: 0,
+        signalStrength: 0,
+      },
     };
 
-    collectionState.addCollectedBin(collection);
-    
-    // Save to localStorage for persistence
-    const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
-    const updatedCollections = [...currentCollections, collection];
-    localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
-    
-    collectionState.setFeedback({
-      type: "success",
-      message: "✓ Manual Collection Recorded",
-      options: [],
-    });
+    try {
+      // Save to backend first
+      await collectionService.createCollectionRecord(collectionDataForBackend);
 
-    collectionState.setShowManualEntry(false);
-    collectionState.setBinId("");
-  }, [collectionState, collectionData.availableBins]);
+      // Update local state
+      const collection = {
+        binId: collectionState.binId.toUpperCase(),
+        location: bin.address,
+        timestamp: new Date().toLocaleString(),
+        weight: collectionState.manualWeight || 0,
+        fillLevel: "Manual Entry",
+        status: "Manual Entry - Sensor Failed",
+        reason: "Sensor failure",
+      };
+
+      collectionState.addCollectedBin(collection);
+      
+      // Save to localStorage for persistence (backup)
+      const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+      const updatedCollections = [...currentCollections, collection];
+      localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
+      
+      // Refresh bin data to update status
+      await collectionData.refreshBinData();
+
+      collectionState.setFeedback({
+        type: "success",
+        message: "✓ Manual Collection Recorded",
+        options: [],
+      });
+
+      collectionState.setShowManualEntry(false);
+      collectionState.setBinId("");
+    } catch (error) {
+      console.error("Failed to save manual collection to backend:", error);
+      
+      // Fallback: Save locally only if backend fails
+      const collection = {
+        binId: collectionState.binId.toUpperCase(),
+        location: bin.address,
+        timestamp: new Date().toLocaleString(),
+        weight: collectionState.manualWeight || 0,
+        fillLevel: "Manual Entry",
+        status: "Manual Entry - Sensor Failed (Local Only)",
+        reason: "Sensor failure",
+      };
+
+      collectionState.addCollectedBin(collection);
+      
+      // Save to localStorage for persistence
+      const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
+      const updatedCollections = [...currentCollections, collection];
+      localStorage.setItem('localCollections', JSON.stringify(updatedCollections));
+
+      collectionState.setFeedback({
+        type: "success",
+        message: "✓ Manual Collection Recorded",
+        options: [],
+      });
+
+      collectionState.setShowManualEntry(false);
+      collectionState.setBinId("");
+    }
+  }, [collectionState, collectionData]);
 
   // Mark as missed handler
   const handleMarkAsMissed = useCallback(async () => {
@@ -440,6 +506,35 @@ const CollectionPage = () => {
       });
       playFeedbackSound("error");
       return;
+    }
+
+    // Check if bin belongs to selected route
+    if (selectedRouteId) {
+      const route = RouteConfigService.getRouteById(selectedRouteId);
+      if (route && route.bins && !route.bins.includes(bin.binId)) {
+        collectionState.setFeedback({
+          type: "error",
+          message: `This bin is not part of the selected route: ${route.name}`,
+          options: [
+            {
+              text: "Retry Scan",
+              type: "secondary",
+              onClick: () => collectionState.setBinId(""),
+            },
+            {
+              text: "Change Route",
+              type: "primary",
+              onClick: () => {
+                // Navigate to routes page or show route selector
+                window.location.href = "/worker/routes";
+              },
+            },
+            { text: "Skip", type: "secondary", onClick: () => collectionState.setBinId("") },
+          ],
+        });
+        playFeedbackSound("error");
+        return;
+      }
     }
 
     // Prepare collection data for backend (same structure as regular collection)
@@ -513,14 +608,14 @@ const CollectionPage = () => {
       
       collectionState.setFeedback({
         type: "warning",
-        message: `Bin marked as missed (saved locally only): ${reason}`,
+        message: `Bin marked as missed: ${reason}`,
         options: [],
       });
 
       playFeedbackSound("warning");
       collectionState.setBinId("");
     }
-  }, [collectionState, collectionData.availableBins, playFeedbackSound]);
+  }, [collectionState, collectionData.availableBins, playFeedbackSound, selectedRouteId]);
 
   // Reset bin handler
   const handleResetBin = useCallback((binId) => {
@@ -543,8 +638,8 @@ const CollectionPage = () => {
       // Update local state
       collectionState.removeCollectedBin(binToReset);
       
-      // Update bin status in available bins to ACTIVE
-      // This would need to be handled by the collectionData hook
+      // Refresh bin data to update bin status from backend
+      await collectionData.refreshBinData();
       
       // Remove from localStorage
       const currentCollections = JSON.parse(localStorage.getItem('localCollections') || '[]');
@@ -577,7 +672,7 @@ const CollectionPage = () => {
     
     setShowResetConfirmation(false);
     setBinToReset(null);
-  }, [binToReset, collectionState]);
+  }, [binToReset, collectionState, collectionData]);
 
   // Cancel reset handler
   const handleCancelReset = useCallback(() => {
@@ -682,7 +777,7 @@ const CollectionPage = () => {
 
             {/* Collected Bins Table */}
             <CollectionTable 
-              collectedBins={collectionState.collectedBins} 
+              collectedBins={routeSpecificCollectedBins} 
               onResetBin={handleResetBin}
             />
 

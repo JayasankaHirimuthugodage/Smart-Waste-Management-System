@@ -92,8 +92,9 @@ public class CollectionService {
         // Save record
         CollectionRecord savedRecord = collectionRecordRepository.save(record);
         
-        // Update bin status if collection was successful
-        if (request.getStatus() == CollectionRecord.CollectionStatus.COLLECTED) {
+        // Update bin status if collection was successful (COLLECTED or OVERRIDE)
+        if (request.getStatus() == CollectionRecord.CollectionStatus.COLLECTED || 
+            request.getStatus() == CollectionRecord.CollectionStatus.OVERRIDE) {
             try {
                 binService.updateBinStatus(request.getBinId(), Bin.BinStatus.COLLECTED);
             } catch (Exception e) {
@@ -225,6 +226,34 @@ public class CollectionService {
                 .orElseThrow(() -> new ResourceNotFoundException("Collection Record", "binId", binId));
         
         return CollectionRecordResponse.fromCollectionRecord(record);
+    }
+
+    /**
+     * Delete collection record by bin ID and worker ID
+     * SRP: Single responsibility - only handles collection record deletion logic
+     * 
+     * @param binId the bin identifier
+     * @param workerId the worker identifier
+     * @throws ResourceNotFoundException if no records found for the bin and worker
+     */
+    public void deleteCollectionRecord(String binId, String workerId) {
+        // Check if records exist before deleting
+        List<CollectionRecord> records = collectionRecordRepository.findByBinId(binId);
+        if (records.isEmpty()) {
+            throw new ResourceNotFoundException("Collection Record", "binId", binId);
+        }
+        
+        // Delete the records
+        collectionRecordRepository.deleteByBinIdAndWorkerId(binId, workerId);
+        
+        // Update bin status back to ACTIVE
+        try {
+            binService.updateBinStatus(binId, Bin.BinStatus.ACTIVE);
+        } catch (Exception e) {
+            // Log error but don't fail the deletion
+            System.err.println("Warning: Failed to update bin status for " + binId + 
+                ": " + e.getMessage());
+        }
     }
 
     /**

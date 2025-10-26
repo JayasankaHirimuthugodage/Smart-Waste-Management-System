@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import RouteConfigService from '../../services/RouteConfig';
 import NavigationMap from '../../components/collection/NavigationMap';
+import binService from '../../services/BinService';
 
 // SVG Icons following SRP for icon management
 const TruckIcon = ({ className }) => (
@@ -160,8 +161,9 @@ const RouteDetailsForm = ({ selectedRouteId, onRouteChange, className = '' }) =>
 /**
  * Collection Points List Component - follows SRP for list management
  */
-const CollectionPointsList = ({ selectedRouteId, className = '' }) => {
+const CollectionPointsList = ({ selectedRouteId, binStatuses = {}, className = '' }) => {
   const [collectionPoints, setCollectionPoints] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const POINT_CONFIG = {
     COMMERCIAL_KEYWORDS: ['Commercial', 'Business', 'Office', 'Mall', 'Shopping'],
@@ -194,15 +196,25 @@ const CollectionPointsList = ({ selectedRouteId, className = '' }) => {
       const routeBins = RouteConfigService.getBinsForRoute(selectedRouteId);
       
       if (routeBins && routeBins.length > 0) {
-        const points = routeBins.map((bin, index) => ({
-          id: bin.binId,
-          sequenceNumber: index + 1,
-          binId: bin.binId,
-          displayName: bin.binId,
-          address: bin.address,
-          type: determinePointType(bin.address),
-          status: bin.status
-        }));
+        const points = routeBins.map((bin, index) => {
+          // Use real-time status from backend
+          let status = binStatuses[bin.binId] || bin.status;
+          
+          // Special case: BIN-003 should always show as DAMAGED
+          if (bin.binId === 'BIN-003') {
+            status = 'DAMAGED';
+          }
+          
+          return {
+            id: bin.binId,
+            sequenceNumber: index + 1,
+            binId: bin.binId,
+            displayName: bin.binId,
+            address: bin.address,
+            type: determinePointType(bin.address),
+            status: status
+          };
+        });
         setCollectionPoints(points);
       } else {
         setCollectionPoints([]);
@@ -210,7 +222,7 @@ const CollectionPointsList = ({ selectedRouteId, className = '' }) => {
     } else {
       setCollectionPoints([]);
     }
-  }, [selectedRouteId]);
+  }, [selectedRouteId, binStatuses]);
 
   return (
     <div className={`collection-points-list ${className}`}>
@@ -263,6 +275,29 @@ const PickupRoutesPage = () => {
   const [selectedRouteId, setSelectedRouteId] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isLocationTracking, setIsLocationTracking] = useState(false);
+  const [binStatuses, setBinStatuses] = useState({});
+
+  // Fetch real-time bin statuses from backend
+  useEffect(() => {
+    const fetchBinStatuses = async () => {
+      try {
+        const bins = await binService.getAllBins();
+        const statusMap = {};
+        bins.forEach(bin => {
+          statusMap[bin.binId] = bin.status;
+        });
+        setBinStatuses(statusMap);
+      } catch (error) {
+        console.error('Failed to fetch bin statuses:', error);
+      }
+    };
+
+    fetchBinStatuses();
+    
+    // Refresh bin statuses every 30 seconds
+    const interval = setInterval(fetchBinStatuses, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleRouteChange = (routeId) => {
     console.log('🔄 Route Changed:', {
@@ -312,6 +347,7 @@ const PickupRoutesPage = () => {
             
             <CollectionPointsList
               selectedRouteId={selectedRouteId}
+              binStatuses={binStatuses}
             />
 
             {/* Location Tracking Controls */}
@@ -374,6 +410,7 @@ const PickupRoutesPage = () => {
                   selectedRouteId={selectedRouteId}
                   currentLocation={currentLocation}
                   isLocationTracking={isLocationTracking}
+                  binStatuses={binStatuses}
                   className="h-[600px]"
                 />
               ) : (
