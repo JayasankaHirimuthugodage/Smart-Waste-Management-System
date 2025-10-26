@@ -1,10 +1,9 @@
 /**
- * Collection Header Component
- * Follows SRP - only handles header display
+ * CollectionHeader - Displays page header with offline mode indicator
+ * Follows SRP by handling only header presentation
  */
 import React from 'react';
 
-// Simple SVG icons to avoid external dependencies
 const TruckIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
     <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />

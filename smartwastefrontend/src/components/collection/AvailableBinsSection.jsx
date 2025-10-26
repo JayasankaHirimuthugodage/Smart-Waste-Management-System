@@ -1,6 +1,8 @@
 /**
- * Available Bins Section Component
- * Follows SRP - only handles available bins display
+ * AvailableBinsSection - Shows bins on selected route with real-time status
+ * 
+ * Following SRP: Only displays bin list, doesn't handle bin operations
+ * Following OCP: Adding new status types (e.g., FULL, EMPTY) only requires updating getBinStatusStyle
  */
 import React from 'react';
 

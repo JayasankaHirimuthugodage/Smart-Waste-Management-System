@@ -1,6 +1,6 @@
 /**
- * Route Summary Section Component
- * Follows SRP - only handles route summary display
+ * RouteSummarySection - Current route collection summary
+ * SRP: Displays summary only, calculations handled by RouteSummaryService
  */
 import React from 'react';
 

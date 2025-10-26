@@ -1,6 +1,8 @@
 /**
- * Manual Entry Section Component
- * Follows SRP - only handles manual entry UI and logic
+ * ManualEntrySection - Fallback for sensor failures (e.g., BIN-003 damaged sensor)
+ * 
+ * SRP: Handles manual data entry UI only when sensor validation fails
+ * OCP: Waste type dropdown extensible without changing component structure
  */
 import React from 'react';
 

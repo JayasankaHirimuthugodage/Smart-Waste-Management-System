@@ -2,19 +2,15 @@ import React, { useState, useEffect } from 'react';
 import RouteConfigService from '../../services/RouteConfig';
 
 /**
- * Route Selection Component
+ * RouteSelector - Allows worker to select assigned collection route
  * 
- * SOLID PRINCIPLES APPLIED:
- * - SRP (Single Responsibility): Only handles route selection and validation
- * - OCP (Open/Closed): Open for extension with new route types, closed for modification
- * - DIP (Dependency Inversion): Depends on RouteConfigService abstraction
- * - ISP (Interface Segregation): Focused selection interface without unnecessary dependencies
+ * SOLID Principles Applied:
+ * - SRP: Handles route selection UI only, validation and route data from RouteConfigService
+ * - OCP: New route types can be added to RouteConfigService without changing this component
+ * - DIP: Depends on RouteConfigService abstraction instead of hardcoded route data
+ * - ISP: Clean interface - receives only selectedRouteId, onRouteChange, optional styling
  * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on route selection
- * - No duplicate code: Reusable selection component
- * - No magic numbers: All validation rules properly defined
- * - Clear separation: Selection logic separated from display logic
+ * Integrates with CollectionPage to filter bins by selected route (e.g., Route A, Route B)
  */
 
 const RouteSelector = ({ 
@@ -27,9 +23,6 @@ const RouteSelector = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /**
-   * Load available routes on component mount - follows SRP for data loading
-   */
   useEffect(() => {
     try {
       const routes = RouteConfigService.getAvailableRoutes();
@@ -43,10 +36,6 @@ const RouteSelector = ({
     }
   }, []);
 
-  /**
-   * Handle route selection change - follows SRP for selection handling
-   * @param {Event} event - The change event
-   */
   const handleRouteChange = (event) => {
     const newRouteId = event.target.value;
     
@@ -57,9 +46,6 @@ const RouteSelector = ({
     }
   };
 
-  /**
-   * Get selected route information - follows SRP for route information
-   */
   const getSelectedRouteInfo = () => {
     if (!selectedRouteId) return null;
     return RouteConfigService.getRouteById(selectedRouteId);

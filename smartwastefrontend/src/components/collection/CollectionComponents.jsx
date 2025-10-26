@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Simple SVG icons to avoid external dependencies - follows SRP for icon management
 const CheckCircleIcon = ({ className }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 20 20">
     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -33,22 +32,17 @@ const InformationCircleIcon = ({ className }) => (
 );
 
 /**
- * FeedbackDisplay Component - Handles all types of user feedback
+ * FeedbackDisplay - Unified feedback component for success, errors, and warnings
  * 
- * SOLID PRINCIPLES APPLIED:
- * - SRP (Single Responsibility): Only responsible for displaying feedback messages
- * - OCP (Open/Closed): Open for extension with new feedback types, closed for modification
- * - DIP (Dependency Inversion): Depends on feedback type abstraction, not concrete implementations
- * - ISP (Interface Segregation): Focused feedback interface without unnecessary dependencies
+ * SOLID Principles Applied:
+ * - SRP: Only responsible for displaying user feedback, no business logic
+ * - OCP: New feedback types (e.g., 'info', 'offline') added via switch cases without breaking existing types
+ * - DIP: Accepts feedback type as abstraction, rendering logic decoupled from parent
+ * - ISP: Clean interface with only necessary props (type, message, options, onClose)
  * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on feedback display
- * - No duplicate code: Reusable across all feedback types
- * - No magic strings: All feedback types properly defined
- * - Clear separation: UI logic separated from business logic
+ * Used throughout collection workflow for bin validation, duplicate detection, sensor errors
  */
 const FeedbackDisplay = ({ type, message, options = [], onClose }) => {
-  // Icon mapping following OCP - easy to extend with new feedback types
   const getIcon = () => {
     const iconClass = "w-8 h-8";
     switch (type) {
@@ -67,7 +61,6 @@ const FeedbackDisplay = ({ type, message, options = [], onClose }) => {
     }
   };
 
-  // Style mapping following OCP - easy to extend with new styles
   const getStyles = () => {
     switch (type) {
       case 'success':
@@ -85,7 +78,6 @@ const FeedbackDisplay = ({ type, message, options = [], onClose }) => {
     }
   };
 
-  // Button style mapping following SRP - single responsibility for button styling
   const getButtonStyle = (buttonType) => {
     switch (buttonType) {
       case 'primary':
@@ -137,17 +129,10 @@ const FeedbackDisplay = ({ type, message, options = [], onClose }) => {
 };
 
 /**
- * ProgressIndicator Component - Displays various progress metrics
+ * ProgressIndicator - Reusable progress display with percentage bar
  * 
- * SOLID PRINCIPLES APPLIED:
- * - SRP (Single Responsibility): Only responsible for displaying progress information
- * - OCP (Open/Closed): Open for extension with new progress types, closed for modification
- * - DIP (Dependency Inversion): Depends on progress data abstraction
- * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on progress display
- * - No duplicate code: Reusable progress components
- * - No magic numbers: All progress calculations properly handled
+ * SRP: Renders progress metrics only, calculations done by parent
+ * OCP: Color schemes extensible (green, blue, yellow, red) without component changes
  */
 const ProgressIndicator = ({ 
   label, 
@@ -197,22 +182,14 @@ const ProgressIndicator = ({
 };
 
 /**
- * SensorDataDisplay Component - Shows mock IoT sensor data
+ * SensorDataDisplay - Shows mock IoT sensor readings from bin tags
  * 
- * SOLID PRINCIPLES APPLIED:
- * - SRP (Single Responsibility): Only responsible for displaying sensor data
- * - OCP (Open/Closed): Open for extension with new sensor types, closed for modification
- * - DIP (Dependency Inversion): Depends on sensor data abstraction
- * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on sensor data display
- * - No duplicate code: Reusable sensor data components
- * - No magic strings: All sensor types properly defined
+ * Demonstrates OCP: New sensor fields (e.g., humidity, odor level) can be added 
+ * to sensorFields array without modifying component logic
  */
 const SensorDataDisplay = ({ sensorData, title = "Bin Sensor Data (Mock)" }) => {
   if (!sensorData) return null;
 
-  // Sensor data fields following OCP - easy to extend with new sensor types
   const sensorFields = [
     { key: 'binId', label: 'Bin ID', value: sensorData.binId },
     { key: 'weight', label: 'Weight', value: `${sensorData.weight} kg` },
@@ -240,20 +217,16 @@ const SensorDataDisplay = ({ sensorData, title = "Bin Sensor Data (Mock)" }) => 
 };
 
 /**
- * CollectionTable Component - Displays collected bins in table format
+ * CollectionTable - Displays worker's collected bins for current shift
  * 
- * SOLID PRINCIPLES APPLIED:
- * - SRP (Single Responsibility): Only responsible for displaying collection data
- * - OCP (Open/Closed): Open for extension with new columns, closed for modification
- * - DIP (Dependency Inversion): Depends on collection data abstraction
+ * SOLID Principles:
+ * - SRP: Only handles table display, reset logic delegated to parent (CollectionPage)
+ * - OCP: Status badge styling extensible via getStatusBadgeStyle mapping
+ * - DIP: Receives collection data as props, doesn't fetch from API directly
  * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on table display
- * - No duplicate code: Reusable table components
- * - No magic strings: All status types properly defined
+ * Supports multiple collection types: normal scans, override collections, manual entries, missed bins
  */
 const CollectionTable = ({ collectedBins, title = "Collected Bins", onResetBin }) => {
-  // Status badge styling following OCP - easy to extend with new status types
   const getStatusBadgeStyle = (status) => {
     switch (status) {
       case 'Collected':
@@ -269,9 +242,8 @@ const CollectionTable = ({ collectedBins, title = "Collected Bins", onResetBin }
     }
   };
 
-  // Reset button handler following SRP - single responsibility
   const handleResetBin = (binId, event) => {
-    event.stopPropagation(); // Prevent row click
+    event.stopPropagation();
     if (onResetBin) {
       onResetBin(binId);
     }

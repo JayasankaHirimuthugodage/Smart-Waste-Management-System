@@ -1,6 +1,8 @@
 /**
- * Bin Scanning Section Component
- * Follows SRP - only handles bin scanning UI and logic
+ * BinScanningSection
+ * 
+ * SRP: Handles only bin scanning UI and user input
+ * OCP: Can extend with QR scanner, RFID reader without changing this component
  */
 import React from 'react';
 

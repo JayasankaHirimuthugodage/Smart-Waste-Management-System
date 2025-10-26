@@ -1,6 +1,9 @@
 /**
- * Location Tracking Section Component
- * Follows SRP - only handles location tracking UI
+ * LocationTrackingSection - GPS tracking controls for worker navigation
+ * 
+ * Demonstrates SRP and ISP principles:
+ * - Only handles location UI display, tracking logic is in useLocationTracking hook
+ * - Receives focused props (location, error, handlers) without unnecessary dependencies
  */
 import React from 'react';
 
