@@ -26,12 +26,7 @@ import java.util.stream.Collectors;
  * - OCP (Open/Closed): Open for extension with new business logic, closed for modification
  * - ISP (Interface Segregation): Provides focused service methods
  * 
- * CODE SMELLS AVOIDED:
- * - No God class: Focused only on collection business logic
- * - No duplicate code: Reusable methods
- * - No long parameter lists: Uses DTOs for complex data
- * - Proper error handling: Uses custom exceptions
- * - Clear method naming: Descriptive method names
+
  */
 @Service
 @Transactional
