@@ -38,9 +38,14 @@ public class SpecialPickupController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<SpecialPickup> updateStatus(
-            @PathVariable String id,
-            @RequestParam String status) {
-        return ResponseEntity.ok(pickupService.updateStatus(id, status));
+    public ResponseEntity<?> updateStatus(@PathVariable String id, @RequestParam String status) {
+        SpecialPickup updated = pickupService.updateStatus(id, status);
+        if (updated == null) {
+            return ResponseEntity.status(404).body(
+                    java.util.Map.of("error", "Pickup not found or could not update", "id", id)
+            );
+        }
+        return ResponseEntity.ok(updated);
     }
+
 }

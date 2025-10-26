@@ -21,12 +21,8 @@ import com.csse.smartwaste.admin.adminReport.adminReportServices.AdminReportServ
 import com.csse.smartwaste.admin.adminReport.reportEntity.Report;
 
 /**
- * AdminReportController
- *
- * SRP: Handles all admin-side report operations (generate, view, delete,
- * export). OCP: New features like delete/PDF export added without breaking
- * existing functionality. DIP: Delegates all business logic to
- * AdminReportService interface.
+ * AdminReportController Handles all admin-side report operations: generate,
+ * view, delete, and export.
  */
 @RestController
 @RequestMapping("/api/admin/reports")
@@ -53,8 +49,7 @@ public class AdminReportController {
      */
     @GetMapping("/all")
     public ResponseEntity<List<Report>> getAllReports() {
-        List<Report> reports = adminReportService.getAllReports();
-        return ResponseEntity.ok(reports);
+        return ResponseEntity.ok(adminReportService.getAllReports());
     }
 
     /**
@@ -63,97 +58,107 @@ public class AdminReportController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getReportById(@PathVariable String id) {
         return adminReportService.getReportById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(404)
+                        .body(Map.of("error", "Report not found", "reportId", id)));
     }
 
     /**
-     * NEW: Delete a report by ID.
-     *
-     * SRP: Only handles HTTP request/response mapping. OCP: Added as a new
-     * endpoint without modifying existing ones.
+     * Delete a report by ID.
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReport(@PathVariable String id) {
-        boolean deleted = adminReportService.deleteReport(id);
-        if (deleted) {
-            return ResponseEntity.ok(Map.of(
-                    "message", "Report deleted successfully",
-                    "reportId", id
-            ));
-        } else {
-            return ResponseEntity.status(404).body(Map.of(
-                    "error", "Report not found",
-                    "reportId", id
-            ));
+        try {
+            boolean deleted = adminReportService.deleteReport(id);
+            if (deleted) {
+                return ResponseEntity.ok(Map.of(
+                        "message", "Report deleted successfully",
+                        "reportId", id
+                ));
+            } else {
+                return ResponseEntity.status(404).body(Map.of(
+                        "error", "Report not found",
+                        "reportId", id
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to delete report", "message", e.getMessage()));
         }
     }
 
     /**
-     * Generate and download report as PDF. Returns a dynamically created PDF
-     * stream.
+     * Generate and download report as PDF (with proper error handling).
      */
     @GetMapping("/pdf/{id}")
     public ResponseEntity<?> downloadReportPdf(@PathVariable String id) {
-        return adminReportService.getReportById(id)
-                .map(report -> {
-                    try {
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        com.itextpdf.text.Document document = new com.itextpdf.text.Document();
-                        com.itextpdf.text.pdf.PdfWriter.getInstance(document, out);
-                        document.open();
-
-                        // --- Header Section ---
-                        com.itextpdf.text.Font titleFont
-                                = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 18, com.itextpdf.text.Font.BOLD);
-                        document.add(new com.itextpdf.text.Paragraph("Smart Waste Management Report", titleFont));
-                        document.add(new com.itextpdf.text.Paragraph("Generated On: " + java.time.LocalDateTime.now()));
-                        document.add(new com.itextpdf.text.Paragraph(" "));
-                        document.add(new com.itextpdf.text.Paragraph("----------------------------------------"));
-                        document.add(new com.itextpdf.text.Paragraph(" "));
-
-                        // --- Report Details ---
-                        document.add(new com.itextpdf.text.Paragraph("Report Type: "
-                                + (report.getReportType() != null ? report.getReportType() : "N/A")));
-                        document.add(new com.itextpdf.text.Paragraph("Area: "
-                                + (report.getArea() != null ? report.getArea() : "N/A")));
-                        document.add(new com.itextpdf.text.Paragraph("Date Range: "
-                                + (report.getDateRange() != null ? report.getDateRange() : "N/A")));
-                        document.add(new com.itextpdf.text.Paragraph("Total Waste: " + report.getTotalWaste() + " kg"));
-                        document.add(new com.itextpdf.text.Paragraph("Recycling Rate: " + report.getRecyclingRate() + "%"));
-                        document.add(new com.itextpdf.text.Paragraph(" "));
-
-                        // --- Selected Waste Types ---
-                        document.add(new com.itextpdf.text.Paragraph("Selected Waste Types:"));
-                        document.add(new com.itextpdf.text.Paragraph(" "));
-
-                        if (report.getSelectedWasteTypes() != null && !report.getSelectedWasteTypes().isEmpty()) {
-                            for (Map.Entry<String, Boolean> entry : report.getSelectedWasteTypes().entrySet()) {
-                                String line = "• " + entry.getKey() + ": " + (entry.getValue() ? "Included" : "Excluded");
-                                document.add(new com.itextpdf.text.Paragraph(line));
+        try {
+            return adminReportService.getReportById(id)
+                    .<ResponseEntity<?>>map(report -> {
+                        try {
+                            // Simulate or detect PDF generation failure if data invalid
+                            if (report.getReportType() == null || report.getReportType().isBlank()) {
+                                throw new IllegalStateException("Invalid report data for PDF generation");
                             }
-                        } else {
-                            document.add(new com.itextpdf.text.Paragraph("No waste types selected."));
+
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            com.itextpdf.text.Document document = new com.itextpdf.text.Document();
+                            com.itextpdf.text.pdf.PdfWriter.getInstance(document, out);
+                            document.open();
+
+                            com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(
+                                    com.itextpdf.text.Font.FontFamily.HELVETICA, 18, com.itextpdf.text.Font.BOLD);
+                            document.add(new com.itextpdf.text.Paragraph("Smart Waste Management Report", titleFont));
+                            document.add(new com.itextpdf.text.Paragraph("Generated On: " + java.time.LocalDateTime.now()));
+                            document.add(new com.itextpdf.text.Paragraph(" "));
+                            document.add(new com.itextpdf.text.Paragraph("----------------------------------------"));
+                            document.add(new com.itextpdf.text.Paragraph(" "));
+
+                            document.add(new com.itextpdf.text.Paragraph("Report Type: "
+                                    + (report.getReportType() != null ? report.getReportType() : "N/A")));
+                            document.add(new com.itextpdf.text.Paragraph("Area: "
+                                    + (report.getArea() != null ? report.getArea() : "N/A")));
+                            document.add(new com.itextpdf.text.Paragraph("Date Range: "
+                                    + (report.getDateRange() != null ? report.getDateRange() : "N/A")));
+                            document.add(new com.itextpdf.text.Paragraph("Total Waste: " + report.getTotalWaste() + " kg"));
+                            document.add(new com.itextpdf.text.Paragraph("Recycling Rate: " + report.getRecyclingRate() + "%"));
+                            document.add(new com.itextpdf.text.Paragraph(" "));
+
+                            document.add(new com.itextpdf.text.Paragraph("Selected Waste Types:"));
+                            document.add(new com.itextpdf.text.Paragraph(" "));
+
+                            if (report.getSelectedWasteTypes() != null && !report.getSelectedWasteTypes().isEmpty()) {
+                                for (Map.Entry<String, Boolean> entry : report.getSelectedWasteTypes().entrySet()) {
+                                    String line = "• " + entry.getKey() + ": "
+                                            + (entry.getValue() ? "Included" : "Excluded");
+                                    document.add(new com.itextpdf.text.Paragraph(line));
+                                }
+                            } else {
+                                document.add(new com.itextpdf.text.Paragraph("No waste types selected."));
+                            }
+
+                            document.add(new com.itextpdf.text.Paragraph(" "));
+                            document.add(new com.itextpdf.text.Paragraph("----------------------------------------"));
+                            document.add(new com.itextpdf.text.Paragraph("End of Report"));
+                            document.close();
+
+                            byte[] pdfBytes = out.toByteArray();
+                            return ResponseEntity.ok()
+                                    .header("Content-Disposition", "attachment; filename=report-" + report.getId() + ".pdf")
+                                    .contentType(MediaType.APPLICATION_PDF)
+                                    .body(pdfBytes);
+
+                        } catch (Exception e) {
+                            // Force a controlled 500 response for PDF failures
+                            return ResponseEntity.status(500)
+                                    .body(Map.of("error", "Failed to generate PDF", "message", e.getMessage()));
                         }
-
-                        document.add(new com.itextpdf.text.Paragraph(" "));
-                        document.add(new com.itextpdf.text.Paragraph("----------------------------------------"));
-                        document.add(new com.itextpdf.text.Paragraph("End of Report"));
-                        document.close();
-
-                        byte[] pdfBytes = out.toByteArray();
-                        return ResponseEntity.ok()
-                                .header("Content-Disposition", "attachment; filename=report-" + report.getId() + ".pdf")
-                                .contentType(MediaType.APPLICATION_PDF)
-                                .body(pdfBytes);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return ResponseEntity.internalServerError()
-                                .body(Map.of("error", "Failed to generate PDF", "message", e.getMessage()));
-                    }
-                })
-                .orElse(ResponseEntity.status(404)
-                        .body(Map.of("error", "Report Not Found", "id", id)));
+                    })
+                    .orElse(ResponseEntity.status(404)
+                            .body(Map.of("error", "Report Not Found", "id", id)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Unexpected error occurred", "message", e.getMessage()));
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.csse.smartwaste.admin.routechanges.controller;
 
+import java.util.Map;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -38,9 +39,15 @@ public class RouteChangeController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<RouteChange> updateStatus(
-            @PathVariable String id, @RequestParam String status) {
-        return ResponseEntity.ok(routeService.updateStatus(id, status));
+    public ResponseEntity<?> updateStatus(@PathVariable String id, @RequestParam String status) {
+        try {
+            RouteChange updated = routeService.updateStatus(id, status);
+            return ResponseEntity.ok(updated);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Unexpected error"));
+        }
     }
 
     @GetMapping("/suggestions")
