@@ -95,13 +95,7 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Lombok (for cleaner model classes) -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.32</version>
-            <scope>provided</scope>
-        </dependency>
+
 
     </dependencies>
 
@@ -126,6 +120,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <jvmArguments>-Xms16m -Xmx128m -XX:+UseSerialGC</jvmArguments>
+                </configuration>
             </plugin>
 
             <!-- JaCoCo Maven Plugin for Code Coverage -->
@@ -194,6 +191,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <argLine>@{argLine} -Xms16m -Xmx128m -XX:+UseSerialGC</argLine>
                     <includes>
                         <include>**/*Test.java</include>
                     </includes>
